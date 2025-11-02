@@ -7,6 +7,9 @@ namespace SCleanArchitecture.SimpleAPI.Application.Services;
 public interface IUserService
 {
     Task<AddUserResponseDto> AddUser(AddUserRequestDto requestDto);
+    Task<List<AddUserResponseDto>> GetAllUsers();
+    Task<AddUserResponseDto> GetUserById(int id);
+    Task<AddUserResponseDto> UpdateUser(UpdateUserRequestDto requestDto);
 }
 
 internal sealed class UserService : IUserService
@@ -25,10 +28,13 @@ internal sealed class UserService : IUserService
             {
                 return UserErrors.InvalidRequest();
             }
+            // this will convert each User entity to AddUserResponseDto using Converter!!
 
             var userEntity = requestDto.ToUserEntity();
 
             await _userRepository.AddUserAsync(userEntity);
+
+            // this will get all users from repository!!
 
             var response = requestDto.ToAddUserResponse(userEntity.CreatedAt);
 
@@ -41,7 +47,59 @@ internal sealed class UserService : IUserService
             throw new ArgumentException("Unexpected Error!");
         }
     }
+
+    public async Task<List<AddUserResponseDto>> GetAllUsers()
+    {
+        // this will get all users from repository!!
+        var users = await _userRepository.GetAllUsersAsync();
+
+        // this will convert each User entity to AddUserResponseDto using Converter!!
+        var response = users.Select(u => u.ToAddUserResponse()).ToList();
+
+        return response;
+    }
+
+    public async Task<AddUserResponseDto> GetUserById(int id)
+    {
+        // this will get all users from repository!!
+        var user = await _userRepository.GetUserByIdAsync(id);
+
+        // If user not found, return null as a result
+        if (user == null)
+            return null;
+
+        // this will convert each User entity to AddUserResponseDto using Converter!!
+        var response = user.ToAddUserResponse();
+
+        return response;
+    }
+
+    public async Task<AddUserResponseDto> UpdateUser(UpdateUserRequestDto requestDto)
+    {
+        // check if user exists
+        var existingUser = await _userRepository.GetUserByIdAsync(requestDto.Id);
+
+        if (existingUser == null)
+            return null;  // if User not found
+
+        // then Convert DTO to Entity
+        var userEntity = requestDto.ToUserEntity();
+
+        // then Update user in repository
+        await _userRepository.UpdateUserAsync(userEntity);
+
+        // then Get the updated user to return
+        var updatedUser = await _userRepository.GetUserByIdAsync(requestDto.Id);
+
+        // and lastly Convert to response DTO
+        var response = updatedUser.ToAddUserResponse();
+
+        return response;
+    }
+
+
 }
+
 
 
 public static class UserErrors

@@ -1,58 +1,78 @@
-﻿using SCleanArchitecture.SimpleAPI.Domain.Entities;
+﻿// here I replaced List<User> with DATABASE operations
+
+using Microsoft.EntityFrameworkCore;
+using SCleanArchitecture.SimpleAPI.Domain.Entities;
 using SCleanArchitecture.SimpleAPI.Domain.Repositories;
+using SCleanArchitecture.SimpleAPI.Infrastructure.Data;
 
 namespace SCleanArchitecture.SimpleAPI.Infrastructure.Repositories;
 
 internal sealed class UserRepository : IUserRepository
 {
-    // I Made it static so data persists between calls and not desappear after method ends!
-    private static List<User> userList = new List<User>();
+    // Instead of static List, I use DbContext (database connection)
+    private readonly ApplicationDbContext _context;
+
+    // Constructor - receives database context via Dependency Injection
+    public UserRepository(ApplicationDbContext context)
+    {
+        _context = context;
+    }
 
     public async Task AddUserAsync(User user)
     {
-        //For Auto-generate ID
-        user.Id = userList.Count > 0 ? userList.Max(u => u.Id) + 1 : 1;
+        // Set CreatedAt timestamp
+        user.CreatedAt = DateTime.UtcNow;
 
-        userList.Add(user);
+        // Add to database (in memory, not saved yet)
+        await _context.Users.AddAsync(user);
 
-        await Task.CompletedTask;
+        // Save changes to database (writes to SQL Server)
+        await _context.SaveChangesAsync();
     }
 
     public async Task<IEnumerable<User>> GetAllUsersAsync()
     {
-        // Return all users!!
-        return await Task.FromResult(userList.AsEnumerable());
+        // SELECT * FROM Users
+        return await _context.Users.ToListAsync();
     }
 
     public async Task<User> GetUserByIdAsync(int id)
     {
-        // Find user by ID!!
-        var user = userList.FirstOrDefault(u => u.Id == id);
-        return await Task.FromResult(user);
+        // SELECT * FROM Users WHERE Id = @id
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == id);
     }
 
     public async Task UpdateUserAsync(User user)
     {
-        var existingUser = userList.FirstOrDefault(u => u.Id == user.Id);
+        // Find existing user in database
+        var existingUser = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == user.Id);
 
         if (existingUser != null)
         {
+            // Update properties
             existingUser.Name = user.Name;
             existingUser.Email = user.Email;
-        }
 
-        await Task.CompletedTask;
+            // Save changes to database
+            await _context.SaveChangesAsync();
+        }
     }
 
     public async Task DeleteUserAsync(int id)
     {
-        var user = userList.FirstOrDefault(u => u.Id == id);
+        // Find user
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == id);
 
         if (user != null)
         {
-            userList.Remove(user);
-        }
+            // Remove from database
+            _context.Users.Remove(user);
 
-        await Task.CompletedTask;
+            // Save changes
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -22,30 +22,18 @@ internal sealed class UserService : IUserService
 
     public async Task<AddUserResponseDto> AddUser(AddUserRequestDto requestDto)
     {
-        try
+        if (!requestDto.IsValid())
         {
-            if (!requestDto.IsValid())
-            {
-                return UserErrors.InvalidRequest();
-            }
-            // this will convert each User entity to AddUserResponseDto using Converter!!
-
-            var userEntity = requestDto.ToUserEntity();
-
-            await _userRepository.AddUserAsync(userEntity);
-
-            // this will get all users from repository!!
-
-            var response = requestDto.ToAddUserResponse(userEntity.CreatedAt);
-
-            return response;
-
-
-
-        }catch(Exception ex)
-        {
-            throw new ArgumentException("Unexpected Error!");
+            return UserErrors.InvalidRequest();
         }
+
+        var userEntity = requestDto.ToUserEntity();
+        await _userRepository.AddUserAsync(userEntity);
+        var response = requestDto.ToAddUserResponse(userEntity.CreatedAt);
+
+        return response;
+
+        // ✅ Removed try-catch completely
     }
 
     public async Task<List<AddUserResponseDto>> GetAllUsers()

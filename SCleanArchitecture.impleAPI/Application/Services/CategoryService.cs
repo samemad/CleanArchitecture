@@ -28,32 +28,27 @@ internal sealed class CategoryService : ICategoryService
 
     public async Task<AddCategoryResponseDto> AddCategory(AddCategoryRequestDto requestDto)
     {
-        try
+        // Validate request
+        if (!requestDto.IsValid())
         {
-            // Validate request
-            if (!requestDto.IsValid())
-            {
-                return CategoryErrors.InvalidRequest();
-            }
-
-            // Convert DTO to Entity
-            var categoryEntity = requestDto.ToCategoryEntity();
-
-            // Save to database
-            await _categoryRepository.AddCategoryAsync(categoryEntity);
-
-            // Get the saved category (without products for performance)
-            var savedCategory = await _categoryRepository.GetCategoryByIdAsync(categoryEntity.Id);
-
-            // Convert to response DTO
-            var response = savedCategory.ToAddCategoryResponse();
-
-            return response;
+            return CategoryErrors.InvalidRequest();
         }
-        catch (Exception ex)
-        {
-            throw new ArgumentException("Unexpected Error while adding category!");
-        }
+
+        // Convert DTO to Entity
+        var categoryEntity = requestDto.ToCategoryEntity();
+
+        // Save to database
+        await _categoryRepository.AddCategoryAsync(categoryEntity);
+
+        // Get the saved category
+        var savedCategory = await _categoryRepository.GetCategoryByIdAsync(categoryEntity.Id);
+
+        // Convert to response DTO
+        var response = savedCategory.ToAddCategoryResponse();
+
+        return response;
+
+        // ✅ NO TRY-CATCH! Let exceptions bubble up naturally
     }
 
     public async Task<List<AddCategoryResponseDto>> GetAllCategories()

@@ -28,39 +28,34 @@ internal sealed class ProductService : IProductService
 
     public async Task<AddProductResponseDto> AddProduct(AddProductRequestDto requestDto)
     {
-        try
+        // Validate request
+        if (!requestDto.IsValid())
         {
-            // Validate request
-            if (!requestDto.IsValid())
-            {
-                return ProductErrors.InvalidRequest();
-            }
-
-            // Check if category exists
-            var category = await _categoryRepository.GetCategoryByIdAsync(requestDto.CategoryId);
-            if (category == null)
-            {
-                return ProductErrors.CategoryNotFound();
-            }
-
-            // Convert DTO to Entity
-            var productEntity = requestDto.ToProductEntity();
-
-            // Save to database
-            await _productRepository.AddProductAsync(productEntity);
-
-            // Get the saved product with Category info
-            var savedProduct = await _productRepository.GetProductByIdAsync(productEntity.Id);
-
-            // Convert to response DTO
-            var response = savedProduct.ToAddProductResponse();
-
-            return response;
+            return ProductErrors.InvalidRequest();
         }
-        catch (Exception ex)
+
+        // Check if category exists
+        var category = await _categoryRepository.GetCategoryByIdAsync(requestDto.CategoryId);
+        if (category == null)
         {
-            throw new ArgumentException("Unexpected Error while adding product!");
+            return ProductErrors.CategoryNotFound();
         }
+
+        // Convert DTO to Entity
+        var productEntity = requestDto.ToProductEntity();
+
+        // Save to database
+        await _productRepository.AddProductAsync(productEntity);
+
+        // Get the saved product with Category info
+        var savedProduct = await _productRepository.GetProductByIdAsync(productEntity.Id);
+
+        // Convert to response DTO
+        var response = savedProduct.ToAddProductResponse();
+
+        return response;
+
+        // ✅ NO TRY-CATCH! Let exceptions bubble up naturally
     }
 
     public async Task<List<AddProductResponseDto>> GetAllProducts()

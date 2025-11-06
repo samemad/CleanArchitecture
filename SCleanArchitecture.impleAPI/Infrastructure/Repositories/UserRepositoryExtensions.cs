@@ -2,16 +2,11 @@
 
 namespace SCleanArchitecture.SimpleAPI.Infrastructure.Repositories;
 
-internal static class UserRepositoryExtentions
+internal static class UserRepositoryExtensions
 {
-    public static IServiceCollection AddUserRepsitory(this IServiceCollection services)
+    public static IServiceCollection AddUserRepository(this IServiceCollection services)
     {
         services.AddScoped<IUserRepository, UserRepository>();
-       
-
         return services;
     }
-
-
-
 }

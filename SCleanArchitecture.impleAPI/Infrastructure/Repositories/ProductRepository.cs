@@ -29,7 +29,7 @@ internal sealed class ProductRepository : IProductRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<Product>> GetAllProductsAsync()
+    public async Task<IEnumerable<Product>> GetAllProductAsync()
     {
         // SELECT * FROM Products
         // Include Category so we can see which category each product belongs to

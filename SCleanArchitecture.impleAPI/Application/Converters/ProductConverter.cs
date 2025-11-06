@@ -48,3 +48,5 @@ internal static class ProductConverter
             CategoryId = requestDto.CategoryId
         };
     }
+}
+  

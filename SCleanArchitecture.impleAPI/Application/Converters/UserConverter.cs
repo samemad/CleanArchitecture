@@ -52,9 +52,11 @@ internal static class UserConverter
 
 
     //Add dependency injection helper
-    public static IServiceCollection AddUserService(this IServiceCollection services)
+    public static IServiceCollection AddService(this IServiceCollection services)
     {
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<ICategoryService, CategoryService>();
         return services;
     }
 }

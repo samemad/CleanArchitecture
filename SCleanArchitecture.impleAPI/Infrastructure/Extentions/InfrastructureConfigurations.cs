@@ -6,7 +6,9 @@ public static class InfrastructureConfigurations
 {
     public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
     {
-        services.AddRepsitory();
+        services.AddUserRepsitory();
+        services.AddProductRepsitory();
+        services.AddCategoryRepsitory();
 
         return services;
     }

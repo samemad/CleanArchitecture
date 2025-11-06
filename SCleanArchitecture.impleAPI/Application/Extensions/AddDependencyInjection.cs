@@ -6,7 +6,7 @@ public static class AddDependencyInjection
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        services.AddUserService();
+        services.AddService();
 
         return services;
     }

@@ -57,6 +57,8 @@ internal static class UserConverter
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<IOrderService, OrderService>();
+
         return services;
     }
 }

@@ -19,10 +19,12 @@ public class ApplicationDbContext : DbContext
     public DbSet<User> Users { get; set; }  // Creates "Users" table
     public DbSet<Product> Products { get; set; }
     public DbSet<Category> Categories { get; set; }
+    public DbSet<Order> Orders { get; set; }         
+    public DbSet<OrderItem> OrderItems { get; set; }  
 
     // When you add more entities, add them here:
 
-    // public DbSet<Order> Orders { get; set; }
+ 
 
     // This method configures your database tables
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -95,6 +97,61 @@ public class ApplicationDbContext : DbContext
                   .WithMany(c => c.Products)      // ...One Category which has many Products
                   .HasForeignKey(p => p.CategoryId);  // Using CategoryId as Foreign Key
         });
+
+        // Order configuration - NEW
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.HasKey(o => o.Id);
+
+            entity.Property(o => o.CustomerName)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(o => o.CustomerEmail)
+                .IsRequired()
+                .HasMaxLength(255);
+
+            entity.Property(o => o.TotalAmount)
+                .IsRequired()
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(o => o.Status)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(o => o.CreatedAt)
+                .IsRequired();
+        });
+
+        // OrderItem configuration - NEW
+        modelBuilder.Entity<OrderItem>(entity =>
+        {
+            entity.HasKey(oi => oi.Id);
+
+            entity.Property(oi => oi.Quantity)
+                .IsRequired();
+
+            entity.Property(oi => oi.UnitPrice)
+                .IsRequired()
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(oi => oi.Subtotal)
+                .IsRequired()
+                .HasColumnType("decimal(18,2)");
+
+            // Relationship: OrderItem belongs to Order
+            entity.HasOne(oi => oi.Order)
+                  .WithMany(o => o.OrderItems)
+                  .HasForeignKey(oi => oi.OrderId)
+                  .OnDelete(DeleteBehavior.Cascade);  // Delete items when order is deleted
+
+            // Relationship: OrderItem references Product
+            entity.HasOne(oi => oi.Product)
+                  .WithMany()
+                  .HasForeignKey(oi => oi.ProductId)
+                  .OnDelete(DeleteBehavior.Restrict);  // Don't delete product when order item is deleted
+        });
+
 
     }
 }

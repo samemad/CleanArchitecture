@@ -9,6 +9,7 @@ public static class InfrastructureConfigurations
         services.AddUserRepository();
         services.AddProductRepository();
         services.AddCategoryRepository();
+        services.AddOrderRepository();  // ⚡ MAKE SURE THIS IS HERE!
 
         return services;
     }

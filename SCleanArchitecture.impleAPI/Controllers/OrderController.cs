@@ -18,8 +18,15 @@ namespace SCleanArchitecture.SimpleAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> AddOrder(AddOrderRequestDto orderRequestDto)
         {
-            var result = await _orderService.AddOrder(orderRequestDto);
-            return Ok(result);
+            try
+            {
+                var result = await _orderService.AddOrder(orderRequestDto);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         [HttpGet]
@@ -43,12 +50,19 @@ namespace SCleanArchitecture.SimpleAPI.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateOrderStatus(UpdateOrderRequestDto requestDto)
         {
-            var result = await _orderService.UpdateOrderStatus(requestDto);
+            try
+            {
+                var result = await _orderService.UpdateOrderStatus(requestDto);
 
-            if (result == null)
-                return NotFound($"Order with ID {requestDto.Id} not found");
+                if (result == null)
+                    return NotFound($"Order with ID {requestDto.Id} not found");
 
-            return Ok(result);
+                return Ok(result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         [HttpDelete("{id}")]

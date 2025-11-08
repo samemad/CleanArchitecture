@@ -33,7 +33,7 @@ internal sealed class OrderService : IOrderService
         // Validate request
         if (!requestDto.IsValid())
         {
-            return OrderErrors.InvalidRequest();
+            throw new InvalidOperationException("Invalid order request. Please check customer name, email, and items.");
         }
 
         // Create order entity
@@ -50,13 +50,13 @@ internal sealed class OrderService : IOrderService
 
             if (product == null)
             {
-                return OrderErrors.ProductNotFound(itemDto.ProductId);
+                throw new InvalidOperationException($"Product with ID {itemDto.ProductId} not found.");
             }
 
             // Check stock availability
             if (product.Stock < itemDto.Quantity)
             {
-                return OrderErrors.InsufficientStock(product.Name, product.Stock);
+                throw new InvalidOperationException($"Insufficient stock for product '{product.Name}'. Available: {product.Stock}, Requested: {itemDto.Quantity}");
             }
 
             // Create order item
@@ -104,7 +104,7 @@ internal sealed class OrderService : IOrderService
         // Validate request
         if (!requestDto.IsValid())
         {
-            return OrderErrors.InvalidRequest();
+            throw new InvalidOperationException("Invalid status update request.");
         }
 
         // Check if order exists
@@ -142,23 +142,5 @@ internal sealed class OrderService : IOrderService
     {
         var orders = await _orderRepository.GetOrdersByStatusAsync(status);
         return orders.Select(o => o.ToAddOrderResponse()).ToList();
-    }
-}
-
-public static class OrderErrors
-{
-    public static AddOrderResponseDto InvalidRequest()
-    {
-        return new AddOrderResponseDto();
-    }
-
-    public static AddOrderResponseDto ProductNotFound(int productId)
-    {
-        return new AddOrderResponseDto();
-    }
-
-    public static AddOrderResponseDto InsufficientStock(string productName, int availableStock)
-    {
-        return new AddOrderResponseDto();
     }
 }

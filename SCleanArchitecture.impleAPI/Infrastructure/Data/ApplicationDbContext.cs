@@ -1,22 +1,22 @@
 // Here is your DATABASE CONNECTION file!! 
-// It tells Entity Framework about your tables (DbSets)
+// It tells Entity Framework about your tables (DbSets) 
 
 using Microsoft.EntityFrameworkCore;
 using SCleanArchitecture.SimpleAPI.Domain.Entities;
 
 namespace SCleanArchitecture.SimpleAPI.Infrastructure.Data;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : DbContext 
 {
-    // Constructor - receives configuration from Program.cs
+    // Constructor - receives configuration from Program.cs 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
     }
 
-    // DbSet = Database Table
-    // Each DbSet becomes a table in your database
-    public DbSet<User> Users { get; set; }  // Creates "Users" table
+    // DbSet = Database Table 
+    // Each DbSet becomes a table in your database 
+    public DbSet<User> Users { get; set; }  // Creates "Users" table 
     public DbSet<Product> Products { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<Order> Orders { get; set; }         
@@ -26,12 +26,12 @@ public class ApplicationDbContext : DbContext
 
  
 
-    // This method configures your database tables
+    // This method configures your database tables 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // Configure User table
+        // Configure User table 
         modelBuilder.Entity<User>(entity =>
         {
             // Set primary key
@@ -45,6 +45,12 @@ public class ApplicationDbContext : DbContext
             entity.Property(u => u.Email)
                 .IsRequired()           // NOT NULL
                 .HasMaxLength(255);     // VARCHAR(255)
+
+            // Configure PasswordHash
+            entity.Property(u => u.PasswordHash)
+                .IsRequired()           // NOT NULL - every user must have a password
+                .HasMaxLength(500);     // BCrypt hashes are ~60 chars, but give extra space
+
 
             entity.Property(u => u.CreatedAt)
                 .IsRequired();          // NOT NULL
@@ -95,7 +101,8 @@ public class ApplicationDbContext : DbContext
             //  Define the relationship: Product belongs to Category
             entity.HasOne(p => p.Category)        // One Product has...
                   .WithMany(c => c.Products)      // ...One Category which has many Products
-                  .HasForeignKey(p => p.CategoryId);  // Using CategoryId as Foreign Key
+                  .HasForeignKey(p => p.CategoryId)  // Using CategoryId as Foreign Key
+                  .OnDelete(DeleteBehavior.Restrict);  // Prevent deleting Category if Products exist   
         });
 
         // Order configuration - NEW

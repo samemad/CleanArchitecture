@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SCleanArchitecture.SimpleAPI.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using SCleanArchitecture.SimpleAPI.Infrastructure.Data;
 namespace SCleanArchitecture.SimpleAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251108181436_UpdateCategoryProductRelationship")]
+    partial class UpdateCategoryProductRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -172,11 +175,6 @@ namespace SCleanArchitecture.SimpleAPI.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
@@ -209,7 +207,7 @@ namespace SCleanArchitecture.SimpleAPI.Migrations
                     b.HasOne("SCleanArchitecture.SimpleAPI.Domain.Entities.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Category");

@@ -33,7 +33,7 @@ internal sealed class UserService : IUserService
 
         return response;
 
-        // ✅ Removed try-catch completely
+        
     }
 
     public async Task<List<AddUserResponseDto>> GetAllUsers()

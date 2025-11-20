@@ -12,6 +12,7 @@ public class Product
     public int CategoryId { get; set; }
 
     // Navigation Property (allows you to access Category object)
+    // Navigation Property - "Give me the Category object for this product"
     public Category Category { get; set; }
 
     public DateTime CreatedAt { get; set; }

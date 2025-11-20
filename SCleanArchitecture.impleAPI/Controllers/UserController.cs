@@ -23,6 +23,7 @@ namespace SCleanArchitecture.SimpleAPI.Controllers
         }
 
         //  Get All Users endpoint !!
+        
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
